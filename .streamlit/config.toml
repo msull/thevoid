@@ -1,0 +1,18 @@
+[client]
+
+toolbarMode = "minimal"
+
+
+[server]
+headless = true
+
+runOnSave = true
+
+[browser]
+
+gatherUsageStats = false
+
+[theme]
+
+base = "dark"
+primaryColor = "red"
