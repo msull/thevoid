@@ -38,6 +38,22 @@ if form.form_submit_button("cast your words"):
                     "A completely freeform response of your choosing.",
                 ]
             )
+            prompt = f"""
+            You are a compassionate and understanding listener. A user is venting their feelings:
+
+            "{user_input}"
+
+            Provide an empathetic and supportive response. Never offer advice or try to solve the problem.
+            """.strip()
+
+            # Call the OpenAI API
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=150,
+                n=1,
+                temperature=0.7,
+            )
 
             make_abstract = f"""
 You are THE VOID. An Abstract Feelings AI.
@@ -64,13 +80,15 @@ Do not include any titles or headers. Output only the response.
                 stop=None,
                 temperature=1,
             )
-
+            empathic = response.choices[0].message.content.strip()
             abstract = response2.choices[0].message.content.strip()
             st.header("From the void...")
+            st.write(empathic)
+            st.divider()
             is_svg = SVG_RE.match(abstract) is not None
             if is_svg:
                 st.image(abstract)
             else:
-                st.subheader(abstract)
+                st.write(abstract)
     else:
         st.write("Please enter some text before submitting.")
