@@ -98,6 +98,6 @@ Do not include any titles or headers. Output only the response.
             if is_svg:
                 st.image(abstract)
             else:
-                st.write(abstract)
+                st.caption(abstract)
     else:
         st.write("Please enter some text before submitting.")
