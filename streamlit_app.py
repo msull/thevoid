@@ -68,6 +68,12 @@ A user is venting their feelings
 {user_input}
 </input>
 
+And empathic response has been generated and displayed to the user already:
+
+<empathic_response>
+{empathic}
+</empathic_response>
+
 Generate a new, small, abstract response that carries a similar sentiment.
 
 For this response, please generate a response of the following type:
