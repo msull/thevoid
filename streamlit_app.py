@@ -47,8 +47,8 @@ if form.form_submit_button("cast your words"):
             """.strip()
 
             # Call the OpenAI API
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+            response = openai.chat.completions.create(
+                model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=150,
                 n=1,
@@ -75,9 +75,8 @@ Do not include any titles or headers. Output only the response.
             response2 = openai.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": make_abstract}],
-                max_tokens=1000,
+                max_completion_tokens=1000,
                 n=1,
-                stop=None,
                 temperature=1,
             )
             empathic = response.choices[0].message.content.strip()
