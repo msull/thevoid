@@ -43,7 +43,7 @@ if form.form_submit_button("cast your words"):
 
             "{user_input}"
 
-            Provide an empathetic and supportive response. Never offer advice or try to solve the problem.
+            Provide a CONCISE but empathetic and supportive response. Never offer advice or try to solve the problem.
             """.strip()
 
             # Call the OpenAI API
