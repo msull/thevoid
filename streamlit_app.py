@@ -9,7 +9,9 @@ SVG_RE = re.compile(SVG_R, re.DOTALL)
 
 st.header("To the void...")
 form = st.form("to the void", border=False)
-user_input = form.text_area("input", height=200, label_visibility="collapsed")
+user_input = form.text_area(
+    "input", max_chars=2000, height=200, label_visibility="collapsed"
+)
 if form.form_submit_button("cast your words"):
     if user_input.strip() != "":
         with st.spinner("into the void..."):
