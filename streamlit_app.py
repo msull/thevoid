@@ -55,6 +55,10 @@ if form.form_submit_button("cast your words"):
                 temperature=0.7,
             )
 
+            empathic = response.choices[0].message.content.strip()
+            st.header("From the void...")
+            st.write(empathic)
+
             make_abstract = f"""
 You are THE VOID. An Abstract Feelings AI.
 
@@ -79,10 +83,8 @@ Do not include any titles or headers. Output only the response.
                 n=1,
                 temperature=1,
             )
-            empathic = response.choices[0].message.content.strip()
             abstract = response2.choices[0].message.content.strip()
-            st.header("From the void...")
-            st.write(empathic)
+
             st.divider()
             is_svg = SVG_RE.match(abstract) is not None
             if is_svg:
