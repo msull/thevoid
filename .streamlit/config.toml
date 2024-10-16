@@ -1,6 +1,6 @@
 [client]
 
-toolbarMode = "minimal"
+#toolbarMode = "minimal"
 showSidebarNavigation = false
 
 [server]
@@ -12,7 +12,8 @@ runOnSave = true
 
 gatherUsageStats = false
 [ui]
-hideTopBar = true
+#hideTopBar = true
+
 [theme]
 
 base = "dark"

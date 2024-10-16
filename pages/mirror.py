@@ -2,6 +2,7 @@ import os
 import time
 from base64 import b64encode
 
+import pandas as pd
 import streamlit as st
 from logzero import logger
 from simplesingletable import DynamoDbMemory
@@ -12,8 +13,11 @@ from supersullytools.llm.trackers import (
     DailyUsageTracking,
     GlobalUsageTracker,
     SessionUsageTracking,
+    UsageStats,
 )
-from supersullytools.streamlit.chat_agent_utils import ChatAgentUtils
+from gtts import gTTS
+from io import BytesIO
+from supersullytools.streamlit.chat_agent_utils import ChatAgentUtils, SlashCmd
 
 st.set_page_config(initial_sidebar_state="collapsed")
 hide_decoration_bar_style = """
@@ -29,11 +33,12 @@ def get_memory() -> DynamoDbMemory:
     return DynamoDbMemory(logger=logger, table_name=os.environ.get("DYNAMODB_TABLE"))
 
 
-@st.cache_resource
+# @st.cache_resource
 def get_completion_handler() -> CompletionHandler:
     memory = get_memory()
     trackers = get_trackers()
     completion_tracker = CompletionTracker(memory=memory, trackers=list(trackers))
+
     return CompletionHandler(
         logger=logger,
         debug_output_prompt_and_response=False,
@@ -46,12 +51,38 @@ def get_session_usage_tracker() -> SessionUsageTracking:
     return SessionUsageTracking()
 
 
+def get_total_cost(tracker: "UsageStats"):
+    stats_df = pd.DataFrame(
+        {
+            "count": tracker.completions_by_model,
+            "input_tokens": tracker.input_tokens_by_model,
+            "cached_input_tokens": tracker.cached_input_tokens_by_model,
+            "output_tokens": tracker.output_tokens_by_model,
+            "cost": tracker.compute_cost_per_model(),
+        }
+    )
+    if not stats_df["count"].count():
+        total_cost = 0.0
+    else:
+        total_cost = round(stats_df["cost"].sum(), 4)
+    return float(total_cost)
+
+
 def get_trackers() -> (
     tuple[GlobalUsageTracker, DailyUsageTracking, SessionUsageTracking]
 ):
     memory = get_memory()
     global_tracker = GlobalUsageTracker.ensure_exists(memory)
     todays_tracker = DailyUsageTracking.get_for_today(memory)
+    if (total_cost := get_total_cost(todays_tracker)) > 0.1:
+        todays_tracker.render_completion_cost_as_expander()
+        logger.error(
+            f"Cost has exceeded daily limit, halting session -- try again tomorrow! {total_cost=}"
+        )
+        st.error("Sorry, daily usage limit has been hit")
+        st.stop()
+
+    logger.debug(f"Total current cost {total_cost=}")
     return global_tracker, todays_tracker, get_session_usage_tracker()
 
 
@@ -99,9 +130,19 @@ def main():
         return agent
 
     agent = _agent()
-    agent_utils = ChatAgentUtils(agent, use_system_slash_cmds=False)
 
-    agent.completion_handler.completion_tracker.fixup_trackers()
+    def _display_usage():
+        for tracker in get_trackers():
+            st.write(tracker.__class__.__name__)
+            tracker.render_completion_cost_as_expander()
+
+    agent_utils = ChatAgentUtils(
+        agent,
+        use_system_slash_cmds=False,
+        extra_slash_cmds={
+            "/usage": SlashCmd(name="Show Usage", mechanism=_display_usage, description="Display LLM Usage")
+        },
+    )
 
     if "image_key" not in st.session_state:
         st.session_state.image_key = 1
@@ -155,7 +196,10 @@ def main():
                 use_container_width=True,
                 help=st.session_state.image_description,
             )
+
             st.write(chat_history[-1].content)
+            audio_file = get_audio(chat_history[-1].content)
+            st.sidebar.audio(audio_file, autoplay=True)
 
             if chat_msg := st.chat_input("Talk to the mirror"):
                 if agent_utils.add_user_message(
@@ -178,6 +222,13 @@ def main():
             st.stop()
         st.session_state.cam_input = cam_input
         st.rerun()
+
+@st.cache_data
+def get_audio(text: str):
+    sound_file = BytesIO()
+    tts = gTTS(text.replace(', ', ''), lang='en')
+    tts.write_to_fp(sound_file)
+    return sound_file
 
 
 if __name__ == "__main__":
