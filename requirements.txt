@@ -1,2 +1,7 @@
+boto3
+logzero
+jsonref
 openai
+simplesingletable
 streamlit
+supersullytools

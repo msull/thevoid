@@ -4,6 +4,8 @@ import re
 import streamlit as st
 import openai
 
+st.set_page_config(initial_sidebar_state="collapsed")
+
 SVG_R = r"(?:<\?xml\b[^>]*>[^<]*)?(?:<!--.*?-->[^<]*)*(?:<svg|<!DOCTYPE svg)\b"
 SVG_RE = re.compile(SVG_R, re.DOTALL)
 
