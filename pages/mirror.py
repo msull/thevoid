@@ -99,7 +99,7 @@ def main():
         return agent
 
     agent = _agent()
-    agent_utils = ChatAgentUtils(agent)
+    agent_utils = ChatAgentUtils(agent, use_system_slash_cmds=False)
 
     agent.completion_handler.completion_tracker.fixup_trackers()
 
