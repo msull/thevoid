@@ -109,7 +109,9 @@ def get_photo_description(image) -> str:
         'your physical device and pressed the button to initiate a new "session"; provide a brief '
         "description of the user in the attached photo which will be given to the magic mirror chatbot AI "
         "as it chats with the user in the role of a magic mirror. Do not try to read text on shirts or things like "
-        "that, you are bad at it and it often steers the interaction into a poor conversation."
+        "that, you are bad at it and it often steers the interaction into a poor conversation. Do make your description "
+        "as detailed as possible, noting where possible the style of haircut, if they are stylish, etc. "
+        "Any specific and notable details that can be used by the chatbot greatly enhance the user experience!"
     )
     agent = get_agent()
     completion = agent.get_simple_completion(
@@ -140,7 +142,11 @@ def main():
         agent,
         use_system_slash_cmds=False,
         extra_slash_cmds={
-            "/usage": SlashCmd(name="Show Usage", mechanism=_display_usage, description="Display LLM Usage")
+            "/usage": SlashCmd(
+                name="Show Usage",
+                mechanism=_display_usage,
+                description="Display LLM Usage",
+            )
         },
     )
 
@@ -223,10 +229,11 @@ def main():
         st.session_state.cam_input = cam_input
         st.rerun()
 
+
 @st.cache_data
 def get_audio(text: str):
     sound_file = BytesIO()
-    tts = gTTS(text.replace(', ', ''), lang='en')
+    tts = gTTS(text.replace(", ", ""), lang="en")
     tts.write_to_fp(sound_file)
     return sound_file
 
