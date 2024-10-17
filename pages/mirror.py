@@ -233,7 +233,7 @@ def main():
 @st.cache_data
 def get_audio(text: str):
     sound_file = BytesIO()
-    tts = gTTS(text.replace(", ", ""), lang="en")
+    tts = gTTS(text, lang="en")
     tts.write_to_fp(sound_file)
     return sound_file
 
