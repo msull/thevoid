@@ -191,7 +191,7 @@ def main():
                 st.rerun()
 
         if chat_history := gch():
-
+            st.sidebar.caption(st.session_state.image_description)
             def _reset():
                 st.session_state.cam_input = None
                 get_agent.clear()
