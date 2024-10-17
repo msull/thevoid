@@ -2,7 +2,7 @@ import streamlit as st
 
 from camera_input_live import camera_input_live
 
-st.set_page_config(layout='wide')
+st.set_page_config(layout="wide")
 
 hide_streamlit_style = """
                 <style>
@@ -51,10 +51,9 @@ def camera():
     return image
 
 
-@st.fragment()
 def main():
     image = camera()
-    st.camera_input('camin', label_visibility='collapsed')
+    st.camera_input("camin", label_visibility="collapsed")
 
     if image and st.button("Show"):
         st.image(image)
