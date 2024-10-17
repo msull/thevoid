@@ -1,8 +1,9 @@
 boto3
-logzero
+gTTS
 jsonref
+logzero
 openai
 simplesingletable
 streamlit
+streamlit-camera-input-live
 supersullytools
-gTTS

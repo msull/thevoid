@@ -64,6 +64,7 @@ jinja2==3.1.4
     # via
     #   altair
     #   pydeck
+    #   streamlit-camera-input-live
 jiter==0.6.1
     # via openai
 jmespath==1.0.1
@@ -150,6 +151,10 @@ sniffio==1.3.1
     #   httpx
     #   openai
 streamlit==1.39.0
+    # via
+    #   -r requirements.in
+    #   streamlit-camera-input-live
+streamlit-camera-input-live==0.2.0
     # via -r requirements.in
 supersullytools==7.1.0
     # via -r requirements.in
