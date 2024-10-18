@@ -1,6 +1,8 @@
 import os
+import pickle
 import time
 from base64 import b64encode
+from uuid import uuid4
 
 import pandas as pd
 import streamlit as st
@@ -46,7 +48,7 @@ def get_completion_handler() -> CompletionHandler:
     )
 
 
-@st.cache_resource
+@st.cache_data
 def get_session_usage_tracker() -> SessionUsageTracking:
     return SessionUsageTracking()
 
@@ -86,10 +88,24 @@ def get_trackers() -> (
     return global_tracker, todays_tracker, get_session_usage_tracker()
 
 
-@st.cache_resource
 def get_agent() -> ChatAgent:
     # tool_profiles = {"all": [] + get_ddg_tools()}
-    return ChatAgent(
+    if "agent_session_key_id" not in st.session_state:
+        st.session_state.agent_session_key_id = uuid4().hex
+    agent = _get_agent(st.session_state.agent_session_key_id)
+    agent.completion_handler = get_completion_handler()
+    return agent
+
+
+def reset_agent():
+    _get_agent.clear()
+
+
+@st.cache_resource
+def _get_agent(agent_id: str) -> ChatAgent:
+    _ = agent_id  # feed the linter
+    logger.info("Loading uncached agent")
+    agent = ChatAgent(
         agent_description=(
             "You are playing the role of a magic mirror at a party; deliver a clever / witty response to the user "
             'as they chat with you. The "sessions" will always start with the famouse catch phrase. It is very important'
@@ -101,6 +117,7 @@ def get_agent() -> ChatAgent:
         completion_handler=get_completion_handler(),
         # tool_profiles=,
     )
+    return agent
 
 
 def get_photo_description(image) -> str:
@@ -192,9 +209,10 @@ def main():
 
         if chat_history := gch():
             st.sidebar.caption(st.session_state.image_description)
+
             def _reset():
                 st.session_state.cam_input = None
-                get_agent.clear()
+                reset_agent()
 
             st.button(
                 "Reset",
@@ -224,7 +242,7 @@ def main():
     else:
         if not (cam_input := st.camera_input("cam", label_visibility="collapsed")):
             # st.header("Step up and let the mirror take a look")
-            get_agent.clear()
+            reset_agent()
             st.stop()
         st.session_state.cam_input = cam_input
         st.rerun()
